@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="stats">Stats</string>
+    <string name="find_the_refill_station">Find the Refill Station</string>
+    <string name="refill_your_water_bottle_and_save_the_planet_on_the_go">Refill your water bottle and save the planet on the go</string>
+    <string name="statistics">Stats</string>
+    <string name="navigate">Navigate</string>
+</resources>
