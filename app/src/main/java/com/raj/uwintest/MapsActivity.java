@@ -105,7 +105,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float zoomLevel = 16.0f; //This goes up to 21
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, zoomLevel));
 
+        LatLng loc1 = new LatLng(42.3076721,-83.0683973);
+        googleMap.addMarker(new MarkerOptions()
+                .position(loc1)
+                .title("Location 1"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
 
+
+        LatLng loc2 = new LatLng(42.3078383,-83.0677691);
+        googleMap.addMarker(new MarkerOptions()
+                .position(loc2)
+                .title("Location 2"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
 //        GetCoords process = new GetCoords();
 //        process.doInBackground();
 //        googleMap.addMarker(new MarkerOptions()
