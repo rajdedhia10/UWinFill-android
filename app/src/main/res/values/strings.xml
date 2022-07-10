@@ -2,4 +2,6 @@
     <string name="app_name">UWinFill</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="maps_fragment">Maps</string>
+    <string name="stats_fragment">Statistics</string>
 </resources>
