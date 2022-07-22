@@ -3,27 +3,49 @@ package com.raj.uwintest;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.DiffUtil;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.raj.uwintest.databinding.ActivityMapsBinding;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private String TAG = "hello";
     private GoogleMap googleMap;
     private ActivityMapsBinding binding;
+    private static double[] currentLocation;
+
 
     @SuppressLint({"WrongThread", "StaticFieldLeak"})
     @Override
@@ -39,28 +61,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         if (ContextCompat.checkSelfPermission(MapsActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)){
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
                 ActivityCompat.requestPermissions(MapsActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }else{
+            } else {
                 ActivityCompat.requestPermissions(MapsActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         }
-
-
-//        new Thread(new GetCoords(){
-//            public void run() {
-//                GetCoords process = new GetCoords();
-//                process.doInBackground();
-//            }
-//        }).start();
-
-//        new GetCoords().execute(doInBackground());
-
-
+        //initialize current location
+        currentLocation= getLocation();
     }
 
     /**
@@ -88,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             gpsTracker.showSettingsAlert();
         }
         return myList;
+
     }
 
     @Override
@@ -95,34 +108,124 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add a marker in Sydney, Australia,
         // and move the map's camera to the same location.
 //        LatLng sydney = new LatLng(-33.852, 151.211);
-        double[] returned = getLocation();
-        LatLng current = new LatLng(returned[0], returned[1]);
+        //double[] returned = getLocation();
+
+        LatLng current = new LatLng(currentLocation[0], currentLocation[1]);
         googleMap.addMarker(new MarkerOptions()
                 .position(current)
-                .title("Current Location"));
+                .title("Current Location: "+currentLocation[0]+currentLocation[1])
+                .icon(BitmapFromVector(getApplicationContext(), R.drawable.ic_action_name))
+        );
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
 
         float zoomLevel = 16.0f; //This goes up to 21
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, zoomLevel));
 
-        LatLng loc1 = new LatLng(42.3076721,-83.0683973);
-        googleMap.addMarker(new MarkerOptions()
-                .position(loc1)
-                .title("Location 1"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
+        plotAllLocations(googleMap);
+        try {
+            plotNearestCoordinates(googleMap);
 
+        } catch (JSONException | InterruptedException e) {
+        }
 
-        LatLng loc2 = new LatLng(42.3078383,-83.0677691);
-        googleMap.addMarker(new MarkerOptions()
-                .position(loc2)
-                .title("Location 2"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-//        GetCoords process = new GetCoords();
-//        process.doInBackground();
-//        googleMap.addMarker(new MarkerOptions()
-//                .position(sydney)
-//                .title("Marker in Sydney"));
-//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
+    private void plotAllLocations(GoogleMap googleMap) {
+        RequestQueue queue= Volley.newRequestQueue(this);
+        String url= "https://uw-fill.herokuapp.com/flocation";
+        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(
+                Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG, "Get All Response: "+response);
+
+                JSONArray locations = null;
+                try {
+                    locations= (JSONArray) response.get("fountains");
+
+                    Log.d(TAG, "All Locations: "+ locations.length());
+                    for(int i=0; i<locations.length();i++){
+                        Log.d(TAG, "IN LOOP: "+i+" "+locations.getJSONObject(i).get("lat"));
+                        JSONObject loc= locations.getJSONObject(i);
+                        LatLng location= new LatLng((double) loc.get("lat"), (double) loc.get("long"));
+                        googleMap.addMarker(new MarkerOptions()
+                                .position(location)
+                                .title("Location "+i+1));
+                   }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "get All Error: "+error.getMessage());
+            }
+        });
+        queue.add(jsonObjectRequest);
+    }
+
+    private void plotNearestCoordinates(GoogleMap googleMap) throws JSONException, InterruptedException {
+        RequestQueue queue= Volley.newRequestQueue(this);
+        String url="https://uw-fill.herokuapp.com/nearest";
+        JSONObject jsonObject= new JSONObject();
+        jsonObject.put("lat", currentLocation[0]);
+        jsonObject.put("long", currentLocation[1]);
+        Log.d(TAG, "Current Coordinates: "+jsonObject.names()+jsonObject.get("lat")+jsonObject.get("long"));
+
+        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(
+                Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                double[] nearestLocation= new double[2];
+                Log.d(TAG, " Get Nearest Response: "+response);
+
+                try {
+                    nearestLocation[0]= (double) response.get("lat");
+                    nearestLocation[1]= (double) response.get("long");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.d("hello", "nearest: "+nearestLocation[0]+" "+nearestLocation[1]);
+
+                LatLng loc4 = new LatLng(nearestLocation[0], nearestLocation[1]);
+                Log.d(TAG, "location 4: "+loc4);
+                googleMap.addMarker(new MarkerOptions()
+                        .position(loc4)
+                        .title("Nearest Location")
+                        .icon()
+                );
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "Get Nearest Error: "+error);
+            }
+        });
+        queue.add(jsonObjectRequest);
+    }
+
+    private BitmapDescriptor BitmapFromVector(Context context, int vectorResId) {
+        // below line is use to generate a drawable.
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+
+        // below line is use to set bounds to our vector drawable.
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+
+        // below line is use to create a bitmap for our
+        // drawable which we have added.
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+//        Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+        // below line is use to add bitmap in our canvas.
+        Canvas canvas = new Canvas(bitmap);
+
+        // below line is use to draw our
+        // vector drawable in canvas.
+        vectorDrawable.draw(canvas);
+
+        // after generating our bitmap we are returning our bitmap.
+        return BitmapDescriptorFactory.fromBitmap(bitmap.createScaledBitmap(bitmap, 100, 100, false));
+    }
 }
+
