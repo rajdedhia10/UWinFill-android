@@ -193,8 +193,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 googleMap.addMarker(new MarkerOptions()
                         .position(loc4)
                         .title("Nearest Location")
-                        .icon()
-                );
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+
 
             }
         }, new Response.ErrorListener() {
