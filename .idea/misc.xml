@@ -3,10 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/activity_introduction.xml" value="0.25" />
-        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/fragment_maps.xml" value="0.25" />
-        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/fragment_stats.xml" value="0.1" />
+        <entry key="..\:/D/MAC/ASE/Project/UWinFill-android/app/src/main/res/layout/fragment_stats.xml" value="0.22826086956521738" />
         <entry key="app/src/main/res/drawable-v24/ic_menu_book.xml" value="0.1225" />
         <entry key="app/src/main/res/drawable-v24/ic_star.xml" value="0.1225" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.125" />
