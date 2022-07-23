@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".Introduction">
+    android:background="@drawable/backgroung_1"
+    android:id="@+id/intro"
+    tools:context=".Introduction"
+    >
 
     <ImageView
         android:id="@+id/imageView"

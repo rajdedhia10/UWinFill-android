@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/activity_introduction.xml" value="0.25" />
+        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/drawable/background_2.xml" value="0.1" />
+        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/drawable/backgroung_1.xml" value="0.1" />
+        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/drawable/gradient_list.xml" value="0.11" />
+        <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/activity_introduction.xml" value="0.136" />
         <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/fragment_maps.xml" value="0.25" />
         <entry key="..\:/UWIN FILL/UWinFill-android/app/src/main/res/layout/fragment_stats.xml" value="0.1" />
