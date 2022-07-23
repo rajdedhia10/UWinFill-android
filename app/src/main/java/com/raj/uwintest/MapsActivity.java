@@ -8,11 +8,14 @@ import androidx.recyclerview.widget.DiffUtil;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -52,13 +55,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // THE IMPLEMENTATION IS VERY JUGAADU. PLEASE FID A BETTER WAY IF YOU CAN.
+
+        GpsTracker gpsTracker = new GpsTracker(MapsActivity.this);
+        Log.d(TAG, "trying to check location");
+        if (!gpsTracker.canGetLocation()){
+
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            this.startActivity(intent);
+            SystemClock.sleep(5000);
+
+//            Log.d(TAG, "log "+gpsTracker.canGetLocation());
+//            gpsTracker.showSettingsAlert();
+//            Log.d(TAG, "setting alert shown");
+//            try {
+//                Thread.sleep(10000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
+        }
+
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
 
         if (ContextCompat.checkSelfPermission(MapsActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -110,6 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        LatLng sydney = new LatLng(-33.852, 151.211);
         //double[] returned = getLocation();
 
+
         LatLng current = new LatLng(currentLocation[0], currentLocation[1]);
         googleMap.addMarker(new MarkerOptions()
                 .position(current)
@@ -145,12 +173,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     Log.d(TAG, "All Locations: "+ locations.length());
                     for(int i=0; i<locations.length();i++){
-                        Log.d(TAG, "IN LOOP: "+i+" "+locations.getJSONObject(i).get("lat"));
+//                        Log.d(TAG, "IN LOOP: "+i+" "+locations.getJSONObject(i).get("lat") +" "+ locations.getJSONObject(i).get("long"));
                         JSONObject loc= locations.getJSONObject(i);
+                        Log.d(TAG, "IN LOOP: "+i+ loc);
                         LatLng location= new LatLng((double) loc.get("lat"), (double) loc.get("long"));
                         googleMap.addMarker(new MarkerOptions()
                                 .position(location)
-                                .title("Location "+i+1));
+                                .title("Location "+(i+1)));
                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
