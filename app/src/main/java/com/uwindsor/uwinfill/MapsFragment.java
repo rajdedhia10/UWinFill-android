@@ -1,12 +1,5 @@
 package com.uwindsor.uwinfill;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.DiffUtil;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -23,6 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -44,14 +42,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
-import java.util.Map;
 
 public class MapsFragment extends Fragment {
 
-    private String TAG = "hello";
-//    private GoogleMap googleMap;
-//    private ActivityMapsBinding binding;
     private static double[] currentLocation;
+    private final String TAG = "hello";
     SupportMapFragment mapFragment;
 
     @SuppressLint({"WrongThread", "StaticFieldLeak"})
@@ -62,13 +57,10 @@ public class MapsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
-        // THE IMPLEMENTATION IS VERY JUGAADU. PLEASE FID A BETTER WAY IF YOU CAN.
-
+                             Bundle savedInstanceState) {
         GpsTracker gpsTracker = new GpsTracker(getActivity());
         Log.d(TAG, "trying to check location");
-        if (!gpsTracker.canGetLocation()){
+        if (!gpsTracker.canGetLocation()) {
 
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             this.startActivity(intent);
@@ -82,19 +74,9 @@ public class MapsFragment extends Fragment {
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
-
         }
 
-//        binding = ActivityMapsBinding.inflate(getLayoutInflater());
-//        setContentView(binding.getRoot());
-
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-
-        if(mapFragment==null) {
+        if (mapFragment == null) {
             mapFragment = SupportMapFragment.newInstance();
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -102,7 +84,7 @@ public class MapsFragment extends Fragment {
                     LatLng current = new LatLng(currentLocation[0], currentLocation[1]);
                     googleMap.addMarker(new MarkerOptions()
                             .position(current)
-                            .title("Current Location: "+currentLocation[0]+currentLocation[1])
+                            .title("Current Location: " + currentLocation[0] + currentLocation[1])
                             .icon(BitmapFromVector(getActivity().getApplicationContext(), R.drawable.ic_action_name))
                     );
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
@@ -120,8 +102,6 @@ public class MapsFragment extends Fragment {
             });
         }
 
-
-
         if (ContextCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
@@ -134,22 +114,24 @@ public class MapsFragment extends Fragment {
             }
         }
         //initialize current location
-        currentLocation= getLocation();
+        currentLocation = getLocation();
         getChildFragmentManager().beginTransaction().replace(R.id.map, mapFragment).commit();
 
-        return inflater.inflate(R.layout.fragment_maps, container,false);
+//        FloatingActionButton checkIn = (FloatingActionButton) getActivity().findViewById(R.id.checkIn);
+//        checkIn.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                checkIn();
+//            }
+//        });
+
+        return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
+    //API call on checkIn
+    private void checkIn() {
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+    }
+
     public double[] getLocation() {
         GpsTracker gpsTracker = new GpsTracker(getActivity());
         double[] myList = new double[0];
@@ -171,56 +153,28 @@ public class MapsFragment extends Fragment {
 
     }
 
-//    @Override
-//    public void onMapReady(GoogleMap googleMap) {
-//        // Add a marker in Sydney, Australia,
-//        // and move the map's camera to the same location.
-////        LatLng sydney = new LatLng(-33.852, 151.211);
-//        //double[] returned = getLocation();
-//
-//
-//        LatLng current = new LatLng(currentLocation[0], currentLocation[1]);
-//        googleMap.addMarker(new MarkerOptions()
-//                .position(current)
-//                .title("Current Location: "+currentLocation[0]+currentLocation[1])
-//                .icon(BitmapFromVector(getActivity().getApplicationContext(), R.drawable.ic_action_name))
-//        );
-//        googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
-//
-//        float zoomLevel = 16.0f; //This goes up to 21
-//        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, zoomLevel));
-//
-//        plotAllLocations(googleMap);
-//        try {
-//            plotNearestCoordinates(googleMap);
-//
-//        } catch (JSONException | InterruptedException e) {
-//        }
-//
-//    }
-
     private void plotAllLocations(GoogleMap googleMap) {
-        RequestQueue queue= Volley.newRequestQueue(getActivity());
-        String url= "https://uw-fill.herokuapp.com/flocation";
-        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "https://uw-fill.herokuapp.com/flocation";
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d(TAG, "Get All Response: "+response);
+                Log.d(TAG, "Get All Response: " + response);
 
                 JSONArray locations = null;
                 try {
-                    locations= (JSONArray) response.get("fountains");
+                    locations = (JSONArray) response.get("fountains");
 
-                    Log.d(TAG, "All Locations: "+ locations.length());
-                    for(int i=0; i<locations.length();i++){
+                    Log.d(TAG, "All Locations: " + locations.length());
+                    for (int i = 0; i < locations.length(); i++) {
 //                        Log.d(TAG, "IN LOOP: "+i+" "+locations.getJSONObject(i).get("lat") +" "+ locations.getJSONObject(i).get("long"));
-                        JSONObject loc= locations.getJSONObject(i);
-                        Log.d(TAG, "IN LOOP: "+i+ loc);
-                        LatLng location= new LatLng((double) loc.get("lat"), (double) loc.get("long"));
+                        JSONObject loc = locations.getJSONObject(i);
+                        Log.d(TAG, "IN LOOP: " + i + loc);
+                        LatLng location = new LatLng((double) loc.get("lat"), (double) loc.get("long"));
                         googleMap.addMarker(new MarkerOptions()
                                 .position(location)
-                                .title("Location "+(i+1)));
+                                .title("Location " + (i + 1)));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -229,37 +183,37 @@ public class MapsFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "get All Error: "+error.getMessage());
+                Log.d(TAG, "get All Error: " + error.getMessage());
             }
         });
         queue.add(jsonObjectRequest);
     }
 
     private void plotNearestCoordinates(GoogleMap googleMap) throws JSONException, InterruptedException {
-        RequestQueue queue= Volley.newRequestQueue(getActivity());
-        String url="https://uw-fill.herokuapp.com/nearest";
-        JSONObject jsonObject= new JSONObject();
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "https://uw-fill.herokuapp.com/nearest";
+        JSONObject jsonObject = new JSONObject();
         jsonObject.put("lat", currentLocation[0]);
         jsonObject.put("long", currentLocation[1]);
-        Log.d(TAG, "Current Coordinates: "+jsonObject.names()+jsonObject.get("lat")+jsonObject.get("long"));
+        Log.d(TAG, "Current Coordinates: " + jsonObject.names() + jsonObject.get("lat") + jsonObject.get("long"));
 
-        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                double[] nearestLocation= new double[2];
-                Log.d(TAG, " Get Nearest Response: "+response);
+                double[] nearestLocation = new double[2];
+                Log.d(TAG, " Get Nearest Response: " + response);
 
                 try {
-                    nearestLocation[0]= (double) response.get("lat");
-                    nearestLocation[1]= (double) response.get("long");
+                    nearestLocation[0] = (double) response.get("lat");
+                    nearestLocation[1] = (double) response.get("long");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.d("hello", "nearest: "+nearestLocation[0]+" "+nearestLocation[1]);
+                Log.d("hello", "nearest: " + nearestLocation[0] + " " + nearestLocation[1]);
 
                 LatLng loc4 = new LatLng(nearestLocation[0], nearestLocation[1]);
-                Log.d(TAG, "location 4: "+loc4);
+                Log.d(TAG, "location 4: " + loc4);
                 googleMap.addMarker(new MarkerOptions()
                         .position(loc4)
                         .title("Nearest Location")
@@ -270,7 +224,7 @@ public class MapsFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "Get Nearest Error: "+error);
+                Log.d(TAG, "Get Nearest Error: " + error);
             }
         });
         queue.add(jsonObjectRequest);
@@ -295,6 +249,6 @@ public class MapsFragment extends Fragment {
         vectorDrawable.draw(canvas);
 
         // after generating our bitmap we are returning our bitmap.
-        return BitmapDescriptorFactory.fromBitmap(bitmap.createScaledBitmap(bitmap, 100, 100, false));
+        return BitmapDescriptorFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap, 100, 100, false));
     }
 }
