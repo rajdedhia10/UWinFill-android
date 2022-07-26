@@ -18,6 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UWinFill"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAJ3FIitNUHTNdHw-3_vEicZzZXtdvNdDs" />
+
         <activity
             android:name=".Introduction"
             android:exported="true">
