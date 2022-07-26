@@ -154,8 +154,10 @@ public class MapsFragment extends Fragment {
         GpsTracker gpsTracker = new GpsTracker(getActivity());
         double[] myList = new double[0];
         if (gpsTracker.canGetLocation()) {
-            double latitude = gpsTracker.getLatitude();
-            double longitude = gpsTracker.getLongitude();
+            double latitude = 42.3047308;
+            double longitude = -83.0666243;
+            latitude = gpsTracker.getLatitude();
+            longitude = gpsTracker.getLongitude();
             myList = new double[2];
             DecimalFormat df = new DecimalFormat("0.0000000");
             myList[0] = Double.parseDouble(df.format(latitude));
