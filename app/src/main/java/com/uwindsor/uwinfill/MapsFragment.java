@@ -197,8 +197,8 @@ public class MapsFragment extends Fragment {
             DecimalFormat df = new DecimalFormat("0.000000");
             myList[0] = Double.parseDouble(df.format(latitude));
             myList[1] = Double.parseDouble(df.format(longitude));
-            Toast.makeText(getActivity(), String.valueOf(myList[0]), Toast.LENGTH_SHORT).show();
-            Toast.makeText(getActivity(), String.valueOf(myList[1]), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getActivity(), String.valueOf(myList[0]), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getActivity(), String.valueOf(myList[1]), Toast.LENGTH_SHORT).show();
         } else {
             gpsTracker.showSettingsAlert();
         }
