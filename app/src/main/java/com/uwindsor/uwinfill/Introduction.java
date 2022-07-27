@@ -1,16 +1,14 @@
 package com.uwindsor.uwinfill;
 
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
-import android.os.Bundle;
-
 import com.uwindsor.uwinfill.databinding.ActivityMainBinding;
+
 
 public class Introduction extends AppCompatActivity {
 

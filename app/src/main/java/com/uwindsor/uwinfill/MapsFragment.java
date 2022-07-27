@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,6 +59,7 @@ public class MapsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_maps, container, false);
         GpsTracker gpsTracker = new GpsTracker(getActivity());
         Log.d(TAG, "trying to check location");
         if (!gpsTracker.canGetLocation()) {
@@ -117,19 +119,70 @@ public class MapsFragment extends Fragment {
         currentLocation = getLocation();
         getChildFragmentManager().beginTransaction().replace(R.id.map, mapFragment).commit();
 
+        FloatingActionButton checkIn = (FloatingActionButton) view.findViewById(R.id.checkIn);
+        checkIn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Log.d(TAG, "onClick");
+                try {
+                    checkIn();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return view;
+    }
+
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        Log.d(TAG, "onStart");
 //        FloatingActionButton checkIn = (FloatingActionButton) getActivity().findViewById(R.id.checkIn);
 //        checkIn.setOnClickListener(new View.OnClickListener() {
 //            public void onClick(View v) {
-//                checkIn();
+//                Log.d(TAG, "onClick");
+//                try {
+//                    checkIn();
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
 //            }
 //        });
-
-        return inflater.inflate(R.layout.fragment_maps, container, false);
-    }
+//    }
 
     //API call on checkIn
-    private void checkIn() {
-
+    private void checkIn() throws JSONException {
+        Log.d(TAG, "checkIn");
+        RequestQueue queue= Volley.newRequestQueue(getActivity().getApplicationContext());
+        String url= "https://uw-fill.herokuapp.com/check_in";
+        JSONObject jsonObject= new JSONObject();
+        jsonObject.put("lat", currentLocation[0]);
+        jsonObject.put("long", currentLocation[1]);
+        Log.d(TAG, "Check-In Current Coordinates: " + jsonObject.names() + jsonObject.get("lat") + jsonObject.get("long"));
+        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(
+                Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG, "Check-In Response: "+ response);
+                try {
+                    String result= response.getString("update");
+                    if(result.compareTo("inbound")==0){
+                        Toast.makeText(getActivity(), String.valueOf("Check-in Successful"), Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                        Toast.makeText(getActivity(), String.valueOf("Check-in Failed"), Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "Check-in Error: "+error);
+            }
+        });
+        queue.add(jsonObjectRequest);
     }
 
     public double[] getLocation() {
@@ -141,7 +194,7 @@ public class MapsFragment extends Fragment {
             latitude = gpsTracker.getLatitude();
             longitude = gpsTracker.getLongitude();
             myList = new double[2];
-            DecimalFormat df = new DecimalFormat("0.0000000");
+            DecimalFormat df = new DecimalFormat("0.000000");
             myList[0] = Double.parseDouble(df.format(latitude));
             myList[1] = Double.parseDouble(df.format(longitude));
             Toast.makeText(getActivity(), String.valueOf(myList[0]), Toast.LENGTH_SHORT).show();
